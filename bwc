@@ -5,33 +5,6 @@ set -ef
 local scriptname=$(basename "$0")
 local sessionfile='/tmp/bw_session'
 
-copy_data () {
-  local id=$1
-  local login=$2
-  local sessionkey=$3
-  local totp
-
-  echo "Name: $(jq -r ".name" <<< $login), ID: $(jq -r ".id" <<< $login)"
-  # Copy the username to the clipboard
-  echo "> Copying Username"
-  jq -r ".login.username" <<< $login | xclip -sel clip
-  # Wait for user input before coping the password
-  echo "> Press Enter to copy password..."
-  read
-  # Copy the password to the clipboard
-  echo "> Copying Password"
-  jq -r ".login.password" <<< $login | xclip -sel clip
-  # Copy a TOTP Token if available
-  totp=$(jq -r ".login.totp" <<< $login)
-  if [[ $totp != "null" ]]; then
-    # Wait for user input before coping the totp token
-    echo "> Press any key to copy TOTP Token..."
-    read
-    echo "> Copying TOTP Token"
-    bw get totp $id --session $sessionkey | xclip -sel clip
-  fi
-}
-
 function get_saved_sessionkey () {
   sudo touch $sessionfile
   echo $(sudo cat $sessionfile)
@@ -43,13 +16,43 @@ function save_sessionkey () {
   sudo chmod 600 $sessionfile
 }
 
+copy_item_to_clipboard () {
+  local id=$1
+  local login=$2
+  local sessionkey=$3
+  local totp
+
+  echo ""
+  echo "$(jq -r ".id" <<< $login)"
+  echo "$(jq -r ".name" <<< $login)"
+  echo ""
+
+  jq -r ".login.username" <<< $login | xclip -sel clip
+  echo "Username \"$(jq -r ".login.username" <<< $login)\" copied to clipboard."
+
+  read -s -k $'?Press any key to copy the password...\n'
+  jq -r ".login.password" <<< $login | xclip -sel clip
+  echo "Password copied to clipboard."
+
+  totp=$(jq -r ".login.totp" <<< $login)
+  if [[ $totp != "null" ]]; then
+    read -s -k $'?Press any key to copy the TOTP Token...\n'
+    bw get totp $id --session $sessionkey | xclip -sel clip
+    echo "Token copied to clipboard."
+  fi
+}
+
 main() {
+  # Check the search term
+
   local searchterm=$1
 
   if [[ -z $searchterm ]] ; then
     echo "Usage: $scriptname <search-term>"
     exit 1
   fi
+
+  # Check the session key
 
   local sessionkey=$(get_saved_sessionkey)
 
@@ -58,14 +61,15 @@ main() {
     sessionkey=$(bw unlock --raw)
     save_sessionkey $sessionkey
   else
-    echo "Using the existing session key from $sessionfile"
+    echo "Using the existing session key from \"$sessionfile\"."
   fi
 
-  # Search for passwords using the search term
-  echo "Searching for '$searchterm'..."
+  # Get a list of matching items
 
+  echo "Searching for '$searchterm'..."
   local logins=$(bw list items --search $searchterm --session $sessionkey)
 
+  # Pick one with the fzf
   local id=$(
     jq -r '.[] | "\(.name)\t\(.login.username)\t\(.id)"' <<< $logins \
     | fzf --reverse --with-nth=1,2 --delimiter="\t" --select-1 --exit-0 \
@@ -73,10 +77,11 @@ main() {
   )
 
   if [[ -n $id ]]; then
+    # Process the selected item
     local login="$(jq ".[] | select(.id == \"$id\")" <<< $logins)"
-    copy_data $id $login $sessionkey
+    copy_item_to_clipboard $id $login $sessionkey
   else
-    echo "No entry found"
+    echo "No entry found."
   fi
 }
 
