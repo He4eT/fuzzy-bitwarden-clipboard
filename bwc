@@ -66,7 +66,8 @@ main() {
 
   local logins=$(bw list items --search $searchterm --session $sessionkey)
 
-  local id=$(jq -r '.[] | "\(.name)\t\(.login.username)\t\(.id)"' <<< $logins \
+  local id=$(
+    jq -r '.[] | "\(.name)\t\(.login.username)\t\(.id)"' <<< $logins \
     | fzf --reverse --with-nth=1,2 --delimiter="\t" --select-1 --exit-0 \
     | awk -F"\t" '{print $3}'
   )
