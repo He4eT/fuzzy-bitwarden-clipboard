@@ -2,6 +2,8 @@
 
 set -ef
 
+local sessionfile='/tmp/bw_session'
+
 copy_data () {
   local id=$1
   local login=$2
@@ -28,17 +30,31 @@ copy_data () {
   fi
 }
 
+function get_saved_sessionkey () {
+  sudo touch $sessionfile
+  echo $(sudo cat $sessionfile)
+}
+
+function save_sessionkey () {
+  local sessionkey=$1
+  sudo sh -c "echo $sessionkey > $sessionfile"
+  sudo chmod 600 $sessionfile
+}
+
 main() {
   local searchterm=$1
   local sessionkey logins login id
-  # Use an existing BW_SESSION or obtain a new session key
-  if [[ -z $BW_SESSION ]] ; then
-    echo "Creating new sessionkey..."
+
+  sessionkey=$(get_saved_sessionkey)
+
+  if [[ -z $sessionkey ]] ; then
     sessionkey=$(bw unlock --raw)
+    save_sessionkey $sessionkey
   else
-    echo "Using existing sessionkey..."
-    sessionkey=$BW_SESSION
+    echo "Using the existing session key from $sessionfile"
+    echo ""
   fi
+
   # Search for passwords using the search term
   if [[ -z $searchterm ]] ; then
     echo "Searchterm can't be empty"
