@@ -16,25 +16,25 @@ function save_sessionkey () {
   sudo chmod 600 $sessionfile
 }
 
-copy_item_to_clipboard () {
+process_item () {
   local id=$1
   local login=$2
   local sessionkey=$3
-  local totp
 
   echo ""
   echo "$(jq -r ".id" <<< $login)"
   echo "$(jq -r ".name" <<< $login)"
   echo ""
 
-  jq -r ".login.username" <<< $login | xclip -sel clip
-  echo "Username \"$(jq -r ".login.username" <<< $login)\" copied to clipboard."
+  local username="$(jq -r ".login.username" <<< $login)"
+  echo $username | xclip -sel clip
+  echo "Username \"$username\" copied to clipboard."
 
   read -s -k $'?Press any key to copy the password...\n'
   jq -r ".login.password" <<< $login | xclip -sel clip
   echo "Password copied to clipboard."
 
-  totp=$(jq -r ".login.totp" <<< $login)
+  local totp=$(jq -r ".login.totp" <<< $login)
   if [[ $totp != "null" ]]; then
     read -s -k $'?Press any key to copy the TOTP Token...\n'
     bw get totp $id --session $sessionkey | xclip -sel clip
@@ -79,7 +79,7 @@ main() {
   if [[ -n $id ]]; then
     # Process the selected item
     local login="$(jq ".[] | select(.id == \"$id\")" <<< $logins)"
-    copy_item_to_clipboard $id $login $sessionkey
+    process_item $id $login $sessionkey
   else
     echo "No entry found."
   fi
