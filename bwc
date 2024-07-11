@@ -2,6 +2,7 @@
 
 set -ef
 
+local scriptname=$(basename "$0")
 local sessionfile='/tmp/bw_session'
 
 copy_data () {
@@ -9,6 +10,7 @@ copy_data () {
   local login=$2
   local sessionkey=$3
   local totp
+
   echo "Name: $(jq -r ".name" <<< $login), ID: $(jq -r ".id" <<< $login)"
   # Copy the username to the clipboard
   echo "> Copying Username"
@@ -43,34 +45,37 @@ function save_sessionkey () {
 
 main() {
   local searchterm=$1
-  local sessionkey logins login id
 
-  sessionkey=$(get_saved_sessionkey)
+  if [[ -z $searchterm ]] ; then
+    echo "Usage: $scriptname <search-term>"
+    exit 1
+  fi
+
+  local sessionkey=$(get_saved_sessionkey)
 
   if [[ -z $sessionkey ]] ; then
+    # Get and save a new session key
     sessionkey=$(bw unlock --raw)
     save_sessionkey $sessionkey
   else
     echo "Using the existing session key from $sessionfile"
-    echo ""
   fi
 
   # Search for passwords using the search term
-  if [[ -z $searchterm ]] ; then
-    echo "Searchterm can't be empty"
-    exit 1
-  fi
   echo "Searching for '$searchterm'..."
-  logins=$(bw list items --search $searchterm --session $sessionkey)
-  id=$(jq -r '.[] | "\(.name)\t\(.login.username)\t\(.id)"' <<< $logins \
+
+  local logins=$(bw list items --search $searchterm --session $sessionkey)
+
+  local id=$(jq -r '.[] | "\(.name)\t\(.login.username)\t\(.id)"' <<< $logins \
     | fzf --reverse --with-nth=1,2 --delimiter="\t" --select-1 --exit-0 \
     | awk -F"\t" '{print $3}'
   )
+
   if [[ -n $id ]]; then
-    login="$(jq ".[] | select(.id == \"$id\")" <<< $logins)"
+    local login="$(jq ".[] | select(.id == \"$id\")" <<< $logins)"
     copy_data $id $login $sessionkey
   else
-    echo "No entry found..."
+    echo "No entry found"
   fi
 }
 
