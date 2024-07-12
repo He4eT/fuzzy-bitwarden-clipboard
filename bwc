@@ -81,7 +81,7 @@ main() {
     local login="$(jq ".[] | select(.id == \"$id\")" <<< $logins)"
     process_item $id $login $sessionkey
   else
-    echo "No entry found."
+    echo "No entry found. You might want to run 'bw sync' and try again."
   fi
 }
 
