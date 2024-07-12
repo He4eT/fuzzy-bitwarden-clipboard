@@ -1,4 +1,4 @@
-# Bitwarden Clipboard Integration Tool
+# Bitwarden CLIpboard Integration Tool
 
 It's a "fork" of the [Interactive Bitwarden CLI Clipboard Selection](https://gist.github.com/loeschzwerg/c2b9d0b50f712a026aa6454af3b58598) gist from [@loeschzwerg](https://github.com/loeschzwerg).
 
