@@ -3,7 +3,7 @@
 set -ef
 
 local scriptname=$(basename "$0")
-local sessionfile='/tmp/bw_session'
+local sessionfile="$HOME/.bitwarden_session"
 
 function get_saved_sessionkey () {
   sudo touch $sessionfile
