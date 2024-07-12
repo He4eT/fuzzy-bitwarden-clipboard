@@ -30,3 +30,7 @@ Username "Username" copied to clipboard.
 Press any key to copy the password...
 Password copied to clipboard.
 ```
+
+---
+
+This project is not associated with the Bitwarden project nor Bitwarden, Inc.
