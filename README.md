@@ -20,13 +20,13 @@ Copy the script to any directory included in your $PATH.
 ```
 $ bwc github                     
 [sudo] password for $USER: 
-Using the existing session key from "/home/$USER/.bitwarden_session".
+Using the existing session key from '/home/$USER/.bitwarden_session'.
 Searching for 'github'...
 
 abcdefgh-ijkl-mnop-qrst-uvwxyz123456
 github.com
 
-Username "Username" copied to clipboard.
+Username 'Username' copied to clipboard.
 Press any key to copy the password...
 Password copied to clipboard.
 ```

@@ -28,7 +28,7 @@ process_item () {
 
   local username="$(jq -r ".login.username" <<< $login)"
   echo $username | xclip -sel clip
-  echo "Username \"$username\" copied to clipboard."
+  echo "Username '$username' copied to clipboard."
 
   read -s -k $'?Press any key to copy the password...\n'
   jq -r ".login.password" <<< $login | xclip -sel clip
@@ -61,7 +61,7 @@ main() {
     sessionkey=$(bw unlock --raw)
     save_sessionkey $sessionkey
   else
-    echo "Using the existing session key from \"$sessionfile\"."
+    echo "Using the existing session key from '$sessionfile'."
   fi
 
   # Get a list of matching items
