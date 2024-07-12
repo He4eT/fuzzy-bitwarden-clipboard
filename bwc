@@ -5,12 +5,12 @@ set -ef
 local scriptname=$(basename "$0")
 local sessionfile="$HOME/.bitwarden_session"
 
-function get_saved_sessionkey () {
+get_saved_sessionkey () {
   sudo touch $sessionfile
   echo $(sudo cat $sessionfile)
 }
 
-function save_sessionkey () {
+save_sessionkey () {
   local sessionkey=$1
   sudo sh -c "echo $sessionkey > $sessionfile"
   sudo chmod 600 $sessionfile
