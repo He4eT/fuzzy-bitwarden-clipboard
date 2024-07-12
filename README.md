@@ -2,7 +2,7 @@
 
 It's a "fork" of the [Interactive Bitwarden CLI Clipboard Selection](https://gist.github.com/loeschzwerg/c2b9d0b50f712a026aa6454af3b58598) gist from [@loeschzwerg](https://github.com/loeschzwerg).
 
-This tool continues the concept of combining `jq`, `fzf`, and `xclip`, while eliminating the need for manual management of the Bitwarden CLI session key by securely storing it in the home directory, with `sudo` required for access.
+This script for `zsh` continues the concept of combining `jq`, `fzf`, and `xclip`, while eliminating the need for manual management of the Bitwarden CLI session key by securely storing it in the home directory, with `sudo` required for access.
 
 ## Requirements
 
