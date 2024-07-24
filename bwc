@@ -12,8 +12,8 @@ get_saved_sessionkey () {
 
 save_sessionkey () {
   local sessionkey=$1
-  sudo sh -c "echo $sessionkey > $sessionfile"
   sudo chmod 600 $sessionfile
+  sudo sh -c "echo $sessionkey > $sessionfile"
 }
 
 process_item () {
